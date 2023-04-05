@@ -12,9 +12,11 @@ import SwiftUI
 struct Home: View {
     
     
-    @State var activeTab: ProductType = .iphone
+    @State var activeTab: ProductType = .macbook
     @Namespace var animation
     @State var productsBasedOnTpe: [[Product]] = []
+    @State var animationProgress: CGFloat = 0
+    
     var body: some View {
         // For auto scrolling conten's
         ScrollViewReader { proxy in
@@ -74,7 +76,7 @@ struct Home: View {
         .offset("CONTENTVIEW") { rect in
             let minY = rect.minY
             /// when the content reaches its top then updating the current active tab
-            if (minY < 30 && -minY < (rect.midY / 2) && activeTab != products.type) {
+            if (minY < 30 && -minY < (rect.midY / 2) && activeTab != products.type) && animationProgress == 0 {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     /// safe check
                     activeTab = (minY < 30 && -minY < (rect.midY / 2) && activeTab != products.type) ? products.type : activeTab
@@ -140,9 +142,13 @@ struct Home: View {
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 activeTab = type
+                                animationProgress = 1.0
                                 /// Scrolling to the selected content
                                 proxy.scrollTo(type, anchor: .topLeading)
                             }
+                        }
+                        .checkAnimationEnd(for: animationProgress) {
+                            animationProgress = 0.0
                         }
                 }
             }
